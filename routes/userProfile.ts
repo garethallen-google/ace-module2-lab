@@ -52,24 +52,28 @@ export function getUserProfile () {
     let username = user.username
 
     if (username) {
-      username = '\\' + username
+      username = username
+        .replace(/\\/g, '\\\\')
+        .replace(/#/g, '\\#')
+        .replace(/!/g, '\\!')
+        .replace(/[\r\n]/g, '')
     }
 
     const themeKey = config.get<string>('application.theme') as keyof typeof themes
     const theme = themes[themeKey] || themes['bluegrey-lightgreen']
 
     if (username) {
-      template = template.replace(/_username_/g, username)
+      template = template.replace(/_username_/g, () => username)
     }
-    template = template.replace(/_emailHash_/g, security.hash(user?.email))
-    template = template.replace(/_title_/g, entities.encode(config.get<string>('application.name')))
-    template = template.replace(/_favicon_/g, favicon())
-    template = template.replace(/_bgColor_/g, theme.bgColor)
-    template = template.replace(/_textColor_/g, theme.textColor)
-    template = template.replace(/_navColor_/g, theme.navColor)
-    template = template.replace(/_primLight_/g, theme.primLight)
-    template = template.replace(/_primDark_/g, theme.primDark)
-    template = template.replace(/_logo_/g, utils.extractFilename(config.get('application.logo')))
+    template = template.replace(/_emailHash_/g, () => security.hash(user?.email))
+    template = template.replace(/_title_/g, () => entities.encode(config.get<string>('application.name')))
+    template = template.replace(/_favicon_/g, () => favicon())
+    template = template.replace(/_bgColor_/g, () => theme.bgColor)
+    template = template.replace(/_textColor_/g, () => theme.textColor)
+    template = template.replace(/_navColor_/g, () => theme.navColor)
+    template = template.replace(/_primLight_/g, () => theme.primLight)
+    template = template.replace(/_primDark_/g, () => theme.primDark)
+    template = template.replace(/_logo_/g, () => utils.extractFilename(config.get('application.logo')))
 
     try {
       const pug = (await import('pug')).default
